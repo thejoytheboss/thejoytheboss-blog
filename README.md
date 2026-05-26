@@ -1,1 +1,1 @@
-this is a html website use to simulate a blog.
+this is a html website
