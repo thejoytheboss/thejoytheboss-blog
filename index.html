@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winter Hearts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --rose: #e89aaa;
+    --cream: #f5f0e8;
+    --dark: #0a0f0e;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--dark);
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--cream);
+    overflow-x: hidden;
+  }
+
+  /* ── PAGE WRAPPER ── */
+  .page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background-image: url('Background.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.45) saturate(0.7);
+    z-index: 0;
+  }
+
+  /* ── CONTENT LAYERS ── */
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+    gap: 3rem;
+  }
+
+  /* ── HEADER WITH GOLD BORDER FRAME ── */
+  .header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 700px;
+    padding: 1.5rem 2rem;
+    animation: fadeDown 1.2s ease both;
+  }
+
+  .header-border {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: min(520px, 90vw);
+    /* The gold border PNG has black bg — use screen to remove black */
+    mix-blend-mode: screen;
+    opacity: 0.95;
+    pointer-events: none;
+    image-rendering: auto;
+  }
+
+  .header-border.bottom {
+    top: auto;
+    bottom: 0;
+    transform: translateX(-50%) scaleY(-1);
+  }
+
+  .header-inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem 0 1rem;
+  }
+
+  .eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(10px, 1.8vw, 13px);
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.1;
+    text-shadow: 0 2px 30px rgba(201,168,76,0.3);
+  }
+
+  .subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    font-style: italic;
+    color: rgba(245,240,232,0.65);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── GOLD DIVIDER ── */
+  .gold-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: min(400px, 80vw);
+  }
+  .gold-rule::before, .gold-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .gold-rule-gem {
+    width: 6px; height: 6px;
+    background: var(--rose);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── HEARTS GRID SECTION ── */
+  .hearts-section {
+    position: relative;
+    width: min(800px, 95vw);
+    animation: fadeUp 1.4s ease 0.3s both;
+  }
+
+  /*
+    The hearts PNG has 4 hearts on black bg in a 2×2 grid.
+    We layer it over a 2×2 grid of video/image holders.
+    mix-blend-mode: screen removes the black, leaving only the pink gem outlines.
+  */
+  .hearts-grid-wrap {
+    position: relative;
+    width: 100%;
+    /* maintain square aspect to match the PNG's 1:1 ratio */
+    aspect-ratio: 1 / 1;
+  }
+
+  /* The actual media grid underneath */
+  .media-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+  }
+
+  .media-cell {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Each cell clips to its heart shape using SVG clip-path */
+  .media-cell:nth-child(1) { clip-path: url(#heart1); }
+  .media-cell:nth-child(2) { clip-path: url(#heart2); }
+  .media-cell:nth-child(3) { clip-path: url(#heart3); }
+  .media-cell:nth-child(4) { clip-path: url(#heart4); }
+
+  .media-cell video,
+  .media-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Placeholder shown when no video/image is set */
+  .media-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: radial-gradient(ellipse at center, #1e2a28 0%, #0a0f0e 100%);
+    color: rgba(201,168,76,0.4);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .media-placeholder:hover {
+    background: radial-gradient(ellipse at center, #2a3632 0%, #101a18 100%);
+    color: rgba(201,168,76,0.7);
+  }
+  .media-placeholder svg {
+    width: 36px; height: 36px;
+    opacity: 0.5;
+  }
+  .media-placeholder span {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  /* The hearts PNG overlay — black disappears via screen blend */
+  .hearts-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ── SVG CLIP PATHS (hidden) ── */
+  .clip-defs {
+    position: absolute;
+    width: 0; height: 0;
+    overflow: hidden;
+  }
+
+  /* ── CAPTION / LABEL AREA ── */
+  .hearts-labels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    width: 100%;
+    margin-top: 1.2rem;
+    padding: 0 2%;
+  }
+  .heart-label {
+    text-align: center;
+    font-size: clamp(11px, 1.5vw, 14px);
+    font-style: italic;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  .heart-label:hover { color: var(--rose); }
+
+  /* ── INSTRUCTIONS CARD ── */
+  .info-card {
+    background: rgba(10,15,14,0.7);
+    border: 0.5px solid rgba(201,168,76,0.25);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 600px;
+    width: 100%;
+    animation: fadeUp 1.4s ease 0.5s both;
+  }
+  .info-card h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .info-card p {
+    font-size: 0.95rem;
+    color: rgba(245,240,232,0.65);
+    line-height: 1.8;
+    margin-bottom: 0.6rem;
+  }
+  .info-card code {
+    background: rgba(201,168,76,0.1);
+    color: var(--gold-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: monospace;
+  }
+
+  /* ── FILE INPUT BUTTONS ── */
+  .upload-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 0.5px solid rgba(201,168,76,0.4);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .upload-btn:hover { background: rgba(201,168,76,0.1); }
+  .upload-btn input[type=file] { display: none; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: rgba(201,168,76,0.35);
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    animation: fadeUp 1.4s ease 0.7s both;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg"></div>
+
+<!-- Hidden SVG clip paths — heart shapes mapped to each quadrant of the 2×2 grid -->
+<svg class="clip-defs" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Each clipPath uses a heart path scaled to fill one quadrant (0–50% or 50–100%) -->
+    <!-- Coordinates are in clipPathUnits="objectBoundingBox" so 0–1 maps to the element size -->
+
+    <!-- Top-left heart -->
+    <clipPath id="heart1" clipPathUnits="objectBoundingBox">
+      <path d="
+        M0.50,0.78
+        C0.50,0.78 0.14,0.55 0.14,0.33
+        C0.14,0.19 0.24,0.11 0.35,0.16
+        C0.41,0.19 0.46,0.25 0.50,0.32
+        C0.54,0.25 0.59,0.19 0.65,0.16
+        C0.76,0.11 0.86,0.19 0.86,0.33
+        C0.86,0.55 0.50,0.78 0.50,0.78Z
+      "/>
+    </clipPath>
+
+    <!-- Top-right heart -->
+    <clipPath id="heart2" clipPathUnits="objectBoundingBox">
+      <path d="
+        M0.50,0.78
+        C0.50,0.78 0.14,0.55 0.14,0.33
+        C0.14,0.19 0.24,0.11 0.35,0.16
+        C0.41,0.19 0.46,0.25 0.50,0.32
+        C0.54,0.25 0.59,0.19 0.65,0.16
+        C0.76,0.11 0.86,0.19 0.86,0.33
+        C0.86,0.55 0.50,0.78 0.50,0.78Z
+      "/>
+    </clipPath>
+
+    <!-- Bottom-left heart -->
+    <clipPath id="heart3" clipPathUnits="objectBoundingBox">
+      <path d="
+        M0.50,0.82
+        C0.50,0.82 0.12,0.57 0.12,0.32
+        C0.12,0.17 0.23,0.09 0.35,0.14
+        C0.41,0.17 0.46,0.24 0.50,0.31
+        C0.54,0.24 0.59,0.17 0.65,0.14
+        C0.77,0.09 0.88,0.17 0.88,0.32
+        C0.88,0.57 0.50,0.82 0.50,0.82Z
+      "/>
+    </clipPath>
+
+    <!-- Bottom-right heart -->
+    <clipPath id="heart4" clipPathUnits="objectBoundingBox">
+      <path d="
+        M0.50,0.82
+        C0.50,0.82 0.12,0.57 0.12,0.32
+        C0.12,0.17 0.23,0.09 0.35,0.14
+        C0.41,0.17 0.46,0.24 0.50,0.31
+        C0.54,0.24 0.59,0.17 0.65,0.14
+        C0.77,0.09 0.88,0.17 0.88,0.32
+        C0.88,0.57 0.50,0.82 0.50,0.82Z
+      "/>
+    </clipPath>
+  </defs>
+</svg>
+
+<div class="page">
+  <div class="content">
+
+    <!-- HEADER -->
+    <header class="header">
+      <img class="header-border" src="Image_border.PNG" alt="">
+      <img class="header-border bottom" src="Image_border.PNG" alt="">
+      <div class="header-inner">
+        <p class="eyebrow">A winter collection</p>
+        <h1>Winter Hearts</h1>
+        <p class="subtitle">Where frost meets forever</p>
+      </div>
+    </header>
+
+    <div class="gold-rule"><div class="gold-rule-gem"></div></div>
+
+    <!-- HEARTS VIDEO GRID -->
+    <section class="hearts-section">
+      <div class="hearts-grid-wrap">
+
+        <!-- Media underneath -->
+        <div class="media-grid">
+          <div class="media-cell" id="cell-1">
+            <div class="media-placeholder" onclick="document.getElementById('file-1').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+              <span>Add video</span>
+            </div>
+          </div>
+          <div class="media-cell" id="cell-2">
+            <div class="media-placeholder" onclick="document.getElementById('file-2').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+              <span>Add video</span>
+            </div>
+          </div>
+          <div class="media-cell" id="cell-3">
+            <div class="media-placeholder" onclick="document.getElementById('file-3').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+              <span>Add video</span>
+            </div>
+          </div>
+          <div class="media-cell" id="cell-4">
+            <div class="media-placeholder" onclick="document.getElementById('file-4').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+              <span>Add video</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hearts PNG overlaid — black removed via screen blend -->
+        <img class="hearts-overlay" src="4_individual_Heart_shaped_video_holders.PNG" alt="heart frames">
+
+      </div>
+
+      <!-- Labels below each heart -->
+      <div class="hearts-labels">
+        <p class="heart-label" id="label-1">Heart One</p>
+        <p class="heart-label" id="label-2">Heart Two</p>
+        <p class="heart-label" id="label-3">Heart Three</p>
+        <p class="heart-label" id="label-4">Heart Four</p>
+      </div>
+
+      <!-- Hidden file inputs -->
+      <input type="file" id="file-1" accept="video/*,image/*" style="display:none" onchange="loadMedia(this,1)">
+      <input type="file" id="file-2" accept="video/*,image/*" style="display:none" onchange="loadMedia(this,2)">
+      <input type="file" id="file-3" accept="video/*,image/*" style="display:none" onchange="loadMedia(this,3)">
+      <input type="file" id="file-4" accept="video/*,image/*" style="display:none" onchange="loadMedia(this,4)">
+    </section>
+
+    <div class="gold-rule"><div class="gold-rule-gem"></div></div>
+
+    <!-- HOW IT WORKS CARD -->
+    <div class="info-card">
+      <h2>How to use</h2>
+      <p>Click any heart to load your own <strong>video or image</strong> — it will fill the heart shape. The pink gem outline from the PNG overlay stays on top, so your media shows through the heart window.</p>
+      <p>To swap files in the final HTML, replace the <code>src</code> paths at the top of the file:</p>
+      <p><code>Background.jpg</code> — your frost/nature background<br>
+         <code>Image_border.PNG</code> — the gold scrollwork title frame<br>
+         <code>4_individual_Heart_shaped_video_holders.PNG</code> — the 4 gem hearts overlay</p>
+      <p>For real videos, replace the placeholder <code>&lt;div&gt;</code> elements with <code>&lt;video src="your.mp4" autoplay muted loop playsinline&gt;&lt;/video&gt;</code> inside each <code>.media-cell</code>.</p>
+
+      <div class="upload-row">
+        <label class="upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Heart 1
+          <input type="file" accept="video/*,image/*" onchange="loadMedia(this,1)">
+        </label>
+        <label class="upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Heart 2
+          <input type="file" accept="video/*,image/*" onchange="loadMedia(this,2)">
+        </label>
+        <label class="upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Heart 3
+          <input type="file" accept="video/*,image/*" onchange="loadMedia(this,3)">
+        </label>
+        <label class="upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Heart 4
+          <input type="file" accept="video/*,image/*" onchange="loadMedia(this,4)">
+        </label>
+      </div>
+    </div>
+
+    <p class="footer">♥ &nbsp; Winter Hearts &nbsp; ♥</p>
+
+  </div>
+</div>
+
+<script>
+function loadMedia(input, n) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const url = URL.createObjectURL(file);
+  const cell = document.getElementById('cell-' + n);
+  const isVideo = file.type.startsWith('video/');
+
+  let el;
+  if (isVideo) {
+    el = document.createElement('video');
+    el.src = url;
+    el.autoplay = true;
+    el.muted = true;
+    el.loop = true;
+    el.playsInline = true;
+    el.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+  } else {
+    el = document.createElement('img');
+    el.src = url;
+    el.alt = '';
+    el.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+  }
+
+  cell.innerHTML = '';
+  cell.appendChild(el);
+}
+</script>
+
+</body>
+</html>
