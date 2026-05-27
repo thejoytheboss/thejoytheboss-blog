@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thejoy_theboss-blog</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --rose: #e89aaa;
+    --cream: #f5f0e8;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: #0a0f0e;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+  }
+
+  /* ── FIXED BACKGROUND ── */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background-image: url('Backgrounds.jpg'); /* ← your background image */
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.4) saturate(0.65);
+    z-index: 0;
+  }
+
+  /* ── PAGE ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+    gap: 2.5rem;
+  }
+
+  /* ── HEADER FRAME ── */
+  .header-wrap {
+    position: relative;
+    width: min(600px, 92vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeDown 1.2s ease both;
+  }
+
+  /* Gold border — white bg removed with multiply */
+  .header-frame {
+    position: absolute;
+    inset: -18% -6%;
+    width: 112%;
+    height: 136%;
+    object-fit: fill;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.92;
+  }
+
+  .header-text {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 2.2rem 3rem;
+    background: rgba(10,15,14,0.55);
+    border-radius: 4px;
+  }
+
+  .eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(9px, 1.5vw, 12px);
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5.5vw, 3.8rem);
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.1;
+    text-shadow: 0 2px 24px rgba(201,168,76,0.25);
+  }
+
+  .subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-style: italic;
+    color: rgba(245,240,232,0.6);
+    margin-top: 0.4rem;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── GOLD DIVIDER ── */
+  .rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: min(380px, 80vw);
+  }
+  .rule::before, .rule::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .gem {
+    width: 7px; height: 7px;
+    background: var(--rose);
+    border-radius: 50%;
+  }
+
+  /* ── HEARTS GRID ── */
+  .hearts-section {
+    width: min(820px, 96vw);
+    animation: fadeUp 1.3s ease 0.25s both;
+  }
+
+  .hearts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .heart-cell {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Image clipped to heart shape */
+  .heart-fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: url(#heartClip);
+    display: block;
+  }
+
+  /* Gem heart border — white removed with multiply */
+  .heart-gem-border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .heart-cell:hover .heart-fill {
+    filter: brightness(1.12) saturate(1.1);
+    transition: filter 0.4s ease;
+  }
+
+  /* ── LABELS ── */
+  .hearts-labels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1rem;
+    margin-top: 1rem;
+  }
+  .heart-label {
+    text-align: center;
+    font-size: clamp(12px, 1.6vw, 15px);
+    font-style: italic;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.06em;
+    transition: color 0.3s;
+  }
+  .heart-label:hover { color: var(--rose); }
+
+  /* ── FOOTER ── */
+  .footer {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: rgba(201,168,76,0.35);
+    text-transform: uppercase;
+    animation: fadeUp 1.4s ease 0.6s both;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<!-- Heart clip-path shape definition -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <clipPath id="heartClip" clipPathUnits="objectBoundingBox">
+      <path d="
+        M0.5,0.85
+        C0.5,0.85  0.08,0.56  0.08,0.30
+        C0.08,0.13  0.21,0.05  0.34,0.10
+        C0.41,0.13  0.46,0.20  0.50,0.28
+        C0.54,0.20  0.59,0.13  0.66,0.10
+        C0.79,0.05  0.92,0.13  0.92,0.30
+        C0.92,0.56  0.50,0.85  0.50,0.85Z
+      "/>
+    </clipPath>
+  </defs>
+</svg>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header-wrap">
+    <img class="header-frame" src="boarder.png" alt=""> <!-- ← gold border image -->
+    <div class="header-text">
+      <p class="eyebrow">Thejoy_Theboss</p>
+      <h1>Winter Hearts</h1>
+      <p class="subtitle">war never changes only the battle feild</p>
+<p Live your life.</p>
+    </div>
+  </header>
+
+  <div class="rule"><div class="gem"></div></div>
+
+  <!-- 4 HEARTS -->
+  <section class="hearts-section">
+    <div class="hearts-grid">
+
+      <div class="heart-cell">
+        <img class="heart-fill" src="Backgrounds.jpg" alt="Heart One"> <!-- ← swap src per heart -->
+        <img class="heart-gem-border" src="heartbackground.png" alt="">
+      </div>
+
+      <div class="heart-cell">
+        <img class="heart-fill" src="Backgrounds.jpg" alt="Heart Two">
+        <img class="heart-gem-border" src="heartbackground.png" alt="">
+      </div>
+
+      <div class="heart-cell">
+        <img class="heart-fill" src="Backgrounds.jpg" alt="Heart Three">
+        <img class="heart-gem-border" src="heartbackground.png" alt="">
+      </div>
+
+      <div class="heart-cell">
+        <img class="heart-fill" src="Backgrounds.jpg" alt="Heart Four">
+        <img class="heart-gem-border" src="heartbackground.png" alt="">
+      </div>
+
+    </div>
+
+    <div class="hearts-labels">
+      <p class="heart-label">Heart One</p>
+      <p class="heart-label">Heart Two</p>
+      <p class="heart-label">Heart Three</p>
+      <p class="heart-label">Heart Four</p>
+    </div>
+  </section>
+
+  <div class="rule"><div class="gem"></div></div>
+
+  <p class="footer">♥ &nbsp; Winter Hearts &nbsp; ♥</p>
+
+</div>
+</body>
+</html>
